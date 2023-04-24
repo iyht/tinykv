@@ -1,3 +1,5 @@
+#ifndef HEADER_INDEX
+#define HEADER_INDEX
 #include "data.h"
 #include "stdbool.h"
 #include "pthread.h"
@@ -19,7 +21,7 @@ struct skiplist_indexer {
 };
 
 bool skiplist_indexer_put(void *self, char *key, struct log_record_pos *pos) {
-    struct skiplist_indexer *indexer = self;
+    struct skiplist_indexer *indexer = (struct skiplist_indexer*)self;
     pthread_mutex_lock(&indexer->mutex);
     insert(indexer->skl, key, pos);
     pthread_mutex_unlock(&indexer->mutex);
@@ -27,7 +29,7 @@ bool skiplist_indexer_put(void *self, char *key, struct log_record_pos *pos) {
 }
 
 bool skiplist_indexer_del(void *self, char *key) {
-    struct skiplist_indexer *indexer = self;
+    struct skiplist_indexer *indexer = (struct skiplist_indexer*)self;
     pthread_mutex_lock(&indexer->mutex);
     bool ret = erase(indexer->skl, key);
     pthread_mutex_unlock(&indexer->mutex);
@@ -35,7 +37,7 @@ bool skiplist_indexer_del(void *self, char *key) {
 }
 
 struct log_record_pos* skiplist_indexer_get(void *self, char *key) {
-    struct skiplist_indexer *indexer = self;
+    struct skiplist_indexer *indexer = (struct skiplist_indexer*)self;
     pthread_mutex_lock(&indexer->mutex);
     struct list_node* node = search(indexer->skl, key);
     if(node == NULL) {
@@ -48,7 +50,7 @@ struct log_record_pos* skiplist_indexer_get(void *self, char *key) {
 }
 
 struct indexer* create_skiplist_indexer() {
-    struct skiplist_indexer *indexer = malloc(sizeof(struct skiplist_indexer));
+    struct skiplist_indexer *indexer = (struct skiplist_indexer*)malloc(sizeof(struct skiplist_indexer));
     indexer->op.put = skiplist_indexer_put;
     indexer->op.del = skiplist_indexer_del;
     indexer->op.get = skiplist_indexer_get;
@@ -64,37 +66,39 @@ void destroy_skiplist_indexer(struct indexer *indexer) {
     free(skiplist_indexer);
 }
 
-int main(){
-    struct indexer *indexer = create_skiplist_indexer();
-    struct log_record_pos *pos0 = malloc(sizeof(struct log_record_pos));
-    pos0->file_id = 0;
-    pos0->offset = 0;
+#endif
 
-    struct log_record_pos *pos1 = malloc(sizeof(struct log_record_pos));
-    pos1->file_id = 1;
-    pos1->offset = 1;
+// int main(){
+//     struct indexer *indexer = create_skiplist_indexer();
+//     struct log_record_pos *pos0 = malloc(sizeof(struct log_record_pos));
+//     pos0->file_id = 0;
+//     pos0->offset = 0;
 
-    struct log_record_pos *pos2 = malloc(sizeof(struct log_record_pos));
-    pos2->file_id = 2;
-    pos2->offset = 2;
+//     struct log_record_pos *pos1 = malloc(sizeof(struct log_record_pos));
+//     pos1->file_id = 1;
+//     pos1->offset = 1;
+
+//     struct log_record_pos *pos2 = malloc(sizeof(struct log_record_pos));
+//     pos2->file_id = 2;
+//     pos2->offset = 2;
 
 
-    indexer->put(indexer, "0", pos0);
-    struct log_record_pos *ret = indexer->get(indexer, "0");
-    printf("%d %lld\n", ret->file_id, ret->offset);
+//     indexer->put(indexer, "0", pos0);
+//     struct log_record_pos *ret = indexer->get(indexer, "0");
+//     printf("%d %lld\n", ret->file_id, ret->offset);
 
-    ret = indexer->get(indexer, "null");
-    if(ret == NULL) printf("null\n");
-    else printf("%d %lld\n", ret->file_id, ret->offset);
+//     ret = indexer->get(indexer, "null");
+//     if(ret == NULL) printf("null\n");
+//     else printf("%d %lld\n", ret->file_id, ret->offset);
 
-    indexer->put(indexer, "1", pos1);
-    ret = indexer->get(indexer, "1");
-    printf("%d %lld\n", ret->file_id, ret->offset);
+//     indexer->put(indexer, "1", pos1);
+//     ret = indexer->get(indexer, "1");
+//     printf("%d %lld\n", ret->file_id, ret->offset);
 
-    indexer->put(indexer, "2", pos2);
-    ret = indexer->get(indexer, "2");
-    printf("%d %lld\n", ret->file_id, ret->offset);
+//     indexer->put(indexer, "2", pos2);
+//     ret = indexer->get(indexer, "2");
+//     printf("%d %lld\n", ret->file_id, ret->offset);
 
-    destroy_skiplist_indexer(indexer);
-    return 0;
-}
+//     destroy_skiplist_indexer(indexer);
+//     return 0;
+// }

@@ -42,8 +42,6 @@ static void find(struct skiplist* self, char *target, struct list_node **pre){
 }
 
 struct list_node* search(struct skiplist* self, char* key) {
-    // char *target_str = malloc(sizeof(char) * KEY_SIZE);
-    // sprintf(target_str, "%d", target);
     struct list_node **pre = malloc(sizeof(struct list_node*) * LEVEL);
 
     find(self, key, pre);
@@ -55,12 +53,8 @@ struct list_node* search(struct skiplist* self, char* key) {
 }
 
 void insert(struct skiplist* self, char* key, void *val) {
-    // char *num_str = malloc(sizeof(char) * KEY_SIZE);
-    // sprintf(num_str, "%d", num);
     struct list_node **pre = malloc(sizeof(struct list_node*) * LEVEL);
     find(self, key, pre);
-    // char *val = malloc(sizeof(char) * VAL_SIZE);
-    // sprintf(val, "%d", num);
 
     struct list_node *new_node = create_node(key, val);
     for(int i = 0; i < LEVEL; i++){
@@ -74,8 +68,6 @@ void insert(struct skiplist* self, char* key, void *val) {
 }
 
 bool erase(struct skiplist* self, char* key) {
-    // char *num_str = malloc(sizeof(char) * KEY_SIZE);
-    // sprintf(num_str, "%d", num);
     struct list_node **pre = malloc(sizeof(struct list_node*) * LEVEL);
 
     find(self, key, pre);
