@@ -69,4 +69,8 @@ void data_file_delete(struct data_file* self){
     free(self);
 }
 
+void data_file_close(struct data_file *self){
+    self->io->close(self->io);
+}
+
 #endif

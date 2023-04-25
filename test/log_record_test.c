@@ -20,7 +20,13 @@ int main(){
     assert(size != 0);
 
     struct data_file* df = open_data_file("./", 9);
+    assert(df != NULL);
+    assert(df->write_offset == 0);
+    assert(df->file_id = 9);
+
     data_file_write(df, buf, size);
+    assert(df->write_offset == size);
+
 
     struct log_record *read_record = data_file_read(df, 0);
     assert(read_record != NULL);
@@ -29,6 +35,7 @@ int main(){
     assert(read_record->type == write_record.type);
     assert(strncmp(read_record->key, write_record.key, write_record.key_size) == 0);
     assert(strncmp(read_record->val, write_record.val, write_record.val_size) == 0);
-
     data_file_delete(df);
+
+    printf("test log_record passed!\n");
 }

@@ -53,7 +53,7 @@ void encode_log_record(struct log_record *record, char **buf, int64_t *size){
     (*buf)[8] = record->type;
     strncpy((*buf) + HEADER_SIZE, record->key, record->key_size);
     strncpy((*buf) + HEADER_SIZE + record->key_size, record->val, record->val_size);
-    printf("total size: %ld, headesize: %ld\n", *size, HEADER_SIZE);
+    // printf("total size: %ld, headesize: %ld\n", *size, HEADER_SIZE);
 }
 
 
@@ -76,6 +76,7 @@ void decode_log_record(char* buf, struct log_record *record){
 }
 
 
+// TODO free log_record
 
 
 #endif
