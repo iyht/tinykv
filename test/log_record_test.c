@@ -19,7 +19,7 @@ int main(){
     assert(buf != NULL);
     assert(size != 0);
 
-    struct data_file* df = open_data_file("./", 9);
+    struct data_file* df = open_data_file(".", 900099);
     assert(df != NULL);
     assert(df->write_offset == 0);
     assert(df->file_id = 9);
@@ -28,7 +28,7 @@ int main(){
     assert(df->write_offset == size);
 
 
-    struct log_record *read_record = data_file_read(df, 0);
+    struct log_record *read_record = read_log_record(df, 0);
     assert(read_record != NULL);
     assert(read_record->key_size == write_record.key_size);
     assert(read_record->val_size == write_record.val_size);

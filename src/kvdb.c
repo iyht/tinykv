@@ -1,12 +1,5 @@
-#include <pthread.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include "../include/index.h"
-#include "../include/data_file.h"
-#include "../include/log_record.h"
-#include "../include/option.h"
 
+#include "../include/kvdb.h"
 struct db{
     pthread_mutex_t mutex;
     struct indexer *index;
@@ -16,7 +9,102 @@ struct db{
     int old_data_files_size;
 };
 
-static void set_active_data_file(struct db *self){
+static void load_data_files(struct db *self);
+static void load_index_from_data_files(struct db *self);
+
+
+int filter(const struct dirent *entry){
+    return strstr(entry->d_name, ".data") != NULL;
+}
+
+struct db* db_open(struct option *opt) {
+    struct db *db = malloc(sizeof(struct db));
+    db->opt = opt;
+    db->index = create_skiplist_indexer();
+    db->old_data_files = NULL;
+    db->old_data_files_size = 0;
+    db->active_data_file = NULL;
+
+    // check the data files directory exists or not
+    struct stat st = {0};
+    if(stat(opt->dir_path, &st) == -1) {
+        mkdir(opt->dir_path, 0777);
+    }
+
+
+    // load data files
+    load_data_files(db);
+    
+    // load index
+    load_index_from_data_files(db);
+    return db;
+}
+
+
+
+static void load_data_files(struct db *self) {
+
+    // load all data files under self->opt->dir_path
+    // sort the loaded data files by its filename from small to large
+    struct dirent **namelist;
+    int n = scandir(self->opt->dir_path, &namelist, filter, alphasort);
+    if(n < 0) return;
+
+    // store all the loaded data files in self->old_data_files
+    // set self->active_data_file to the last data file
+    // update self->old_data_files_size
+    self->old_data_files = malloc((n - 1) * sizeof(struct data_file*));
+    self->old_data_files_size = n - 1;
+    for(int i = 0; i < n; i++){
+        int file_id;
+        sscanf(namelist[i]->d_name, "%d.data", &file_id);
+
+        struct data_file* df = open_data_file(self->opt->dir_path, file_id);
+        if (i == n - 1){
+            self->active_data_file = df;
+        } else {
+            self->old_data_files[file_id] = df;
+        }
+    }
+
+}
+
+
+static void load_index_from_data_files(struct db *self){
+    printf("load_index_from_data_files called\n");
+    for(int i = 0; i < self->old_data_files_size + 1; i++){
+        struct data_file *df;
+        if(i == self->old_data_files_size){
+            df = self->active_data_file;
+        } else {
+            df = self->old_data_files[i];
+        }
+        int64_t offset = 0;
+        while(true){
+            struct log_record *record = read_log_record(df, offset);
+            if(!record) break;
+
+            struct log_record_pos* pos = malloc(sizeof(struct log_record_pos));
+            pos->file_id = df->file_id;
+            pos->offset = offset;
+
+            if(record->type == LOG_RECORD_NORMAL){
+                self->index->put(self->index, record->key, (void*)pos);
+            } else if(record->type == LOG_RECORD_DELETED){
+                self->index->del(self->index, record->key);
+            }
+            offset += record->total_size;
+            free(record);
+        }
+        if(df == self->active_data_file){
+            df->write_offset = offset;
+        }
+    }
+
+
+}
+
+void set_active_data_file(struct db *self){
     int file_id = 0; 
     if(self->active_data_file) file_id = self->active_data_file->file_id + 1;
     self->active_data_file = open_data_file(self->opt->dir_path, 0);
@@ -28,7 +116,14 @@ struct log_record_pos* append_log_record(struct db *self, struct log_record *rec
     char *buf;
     int64_t buf_size;
     encode_log_record(record, &buf, &buf_size);
-    if(!buf || buf_size == 0) return NULL;
+    if(!buf || buf_size == 0){
+        printf("encode log record failed\n");
+        return NULL;
+    }
+
+    if(self->active_data_file == NULL) {
+        set_active_data_file(self);
+    }
 
     if(self->active_data_file->write_offset + buf_size > self->opt->data_file_size) {
         data_file_sync(self->active_data_file);
@@ -48,7 +143,7 @@ struct log_record_pos* append_log_record(struct db *self, struct log_record *rec
     return pos;
 }
 
-bool put(struct db *self, char *key, void *val) {
+bool put(struct db *self, char *key, char *val) {
     pthread_mutex_lock(&self->mutex);
     if(self == NULL || key == NULL || val == NULL) {
         pthread_mutex_unlock(&self->mutex);
@@ -58,7 +153,9 @@ bool put(struct db *self, char *key, void *val) {
     // generate log record
     struct log_record record = {.key = key, 
                                 .val = val, 
-                                .type = LOG_RECORD_NORMAL};
+                                .type = LOG_RECORD_NORMAL,
+                                .key_size = strlen(key),
+                                .val_size = strlen(val)};
                             
     // append to the active data file
     struct log_record_pos* pos = append_log_record(self, &record);
@@ -89,16 +186,22 @@ char* get(struct db *self, char *key) {
     else if (pos->file_id < self->old_data_files_size) {
         df = self->old_data_files[pos->file_id];
     } else {
-        pthread_mutex_unlock(&self->mutex);
         printf("file_id %d is not found\n", pos->file_id);
+        pthread_mutex_unlock(&self->mutex);
         return NULL;
     }
 
     // according to the log record position, read the log record from disk
-    struct log_record* record = data_file_read(df, pos->offset);
+    struct log_record* record = read_log_record(df, pos->offset);
     if (record && record->type == LOG_RECORD_NORMAL) {
+
+        char *val = malloc(record->val_size + 1);
+        memcpy(val, record->val, record->val_size);
+        val[record->val_size] = '\0';
+        free(record);
+        printf("get %s\n", val);
         pthread_mutex_unlock(&self->mutex);
-        return record->val;
+        return val;
     }
 
     pthread_mutex_unlock(&self->mutex);
