@@ -41,9 +41,6 @@ void test_get(){
     assert(ret->offset == 2);
 
     destroy_skiplist_indexer(indexer);
-    free(pos0);
-    free(pos1);
-    free(pos2);
 }
 
 int main(){
