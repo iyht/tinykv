@@ -51,7 +51,12 @@ struct list_node* search(struct skiplist* self, char* key) {
 void insert(struct skiplist* self, char* key, void *val) {
     struct list_node **pre = malloc(sizeof(struct list_node*) * LEVEL);
     find(self, key, pre);
-
+    struct list_node *cur = pre[0]->next[0];
+    if(cur && strcmp(cur->key, key) == 0){
+        cur->val = val;
+        free(pre);
+        return;
+    }
     struct list_node *new_node = create_node(key, val);
     for(int i = 0; i < LEVEL; i++){
         new_node->next[i] = pre[i]->next[i];
