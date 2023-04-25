@@ -64,23 +64,3 @@ void destroy_file_io(struct io_manager *io){
 
 
 
-// int main(){
-//     // test write
-//     char *filepath = "test.data";
-//     struct io_manager *io = create_file_io(filepath);
-//     int size = io->write(io, "1234bbbbb");
-//     printf("size: %d written\n", size);
-
-//     // test read;
-//     int buf_size = 10000;
-//     char *buf = malloc(buf_size + 1);
-//     buf[buf_size] = '\0';
-//     int read_size = io->read(io, buf, 0, buf_size);
-//     printf("read size: %d, buf: %s\n", read_size, buf);
-
-//     free(buf);
-//     remove(filepath);
-//     destroy_file_io(io);
-
-
-// }

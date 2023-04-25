@@ -20,9 +20,17 @@ $(BUILD_DIR)/skiplist.o: $(SRC_DIR)/skiplist.c
 $(BUILD_DIR)/index_test: $(TEST_DIR)/index_test.c $(BUILD_DIR)/skiplist.o
 	$(CC) -o $@ $^
 
-all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test
+# test fio
+$(BUILD_DIR)/fio_test: $(TEST_DIR)/fio_test.c 
+	$(CC) -o $@ $^
+
+all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test $(BUILD_DIR)/fio_test
 	./$(BUILD_DIR)/skiplist_test
 	./$(BUILD_DIR)/index_test
+	./$(BUILD_DIR)/fio_test
+
+
+
 
 clean:
 	rm -rf $(BUILD_DIR)/*
