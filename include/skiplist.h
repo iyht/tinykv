@@ -1,4 +1,9 @@
-
+#ifndef HEADER_SKIPLIST
+#define HEADER_SKIPLIST
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 const static int LEVEL = 8;
 const static int KEY_SIZE = 128;
 const static int VAL_SIZE = 256;
@@ -22,3 +27,5 @@ void skiplist_free(struct skiplist* self);
 void print_list_node(struct list_node* node);
 void node_free(struct list_node*node);
 void skiplist_free(struct skiplist* self);
+
+#endif

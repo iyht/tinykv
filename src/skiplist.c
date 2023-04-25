@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include "skiplist.h"
+#include "../include/skiplist.h"
 
 
 void node_free(struct list_node* node);
@@ -102,16 +98,3 @@ void print_list_node(struct list_node* node){
     if(node) printf("key: %s, val: %s\n", node->key, (char*)node->val);
     else printf("node is null\n");
 }
-
-// int main(){
-//     struct skiplist *self = create_skiplist();
-//     struct list_node* res1, *res2;
-//     res1 = search(self, "1");
-//     insert(self, "1", "1val");
-//     insert(self, "2", "2val");
-//     res2 = search(self, "2");
-
-//     print_list_node(res1);
-//     print_list_node(res2);
-//     return 0;
-// }

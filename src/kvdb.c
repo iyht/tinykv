@@ -1,5 +1,5 @@
-#include "index.h"
-#include "data.h"
+#include "../include/index.h"
+#include "../include/data.h"
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdbool.h>

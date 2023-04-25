@@ -3,7 +3,7 @@
 #include "data.h"
 #include "stdbool.h"
 #include "pthread.h"
-#include "skiplist.h"
+#include "../include/skiplist.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -68,37 +68,3 @@ void destroy_skiplist_indexer(struct indexer *indexer) {
 
 #endif
 
-// int main(){
-//     struct indexer *indexer = create_skiplist_indexer();
-//     struct log_record_pos *pos0 = malloc(sizeof(struct log_record_pos));
-//     pos0->file_id = 0;
-//     pos0->offset = 0;
-
-//     struct log_record_pos *pos1 = malloc(sizeof(struct log_record_pos));
-//     pos1->file_id = 1;
-//     pos1->offset = 1;
-
-//     struct log_record_pos *pos2 = malloc(sizeof(struct log_record_pos));
-//     pos2->file_id = 2;
-//     pos2->offset = 2;
-
-
-//     indexer->put(indexer, "0", pos0);
-//     struct log_record_pos *ret = indexer->get(indexer, "0");
-//     printf("%d %lld\n", ret->file_id, ret->offset);
-
-//     ret = indexer->get(indexer, "null");
-//     if(ret == NULL) printf("null\n");
-//     else printf("%d %lld\n", ret->file_id, ret->offset);
-
-//     indexer->put(indexer, "1", pos1);
-//     ret = indexer->get(indexer, "1");
-//     printf("%d %lld\n", ret->file_id, ret->offset);
-
-//     indexer->put(indexer, "2", pos2);
-//     ret = indexer->get(indexer, "2");
-//     printf("%d %lld\n", ret->file_id, ret->offset);
-
-//     destroy_skiplist_indexer(indexer);
-//     return 0;
-// }
