@@ -1,5 +1,6 @@
 #include "../include/index.h"
-#include "../include/data.h"
+#include "../include/data_file.h"
+#include "../include/log_record.h"
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdbool.h>

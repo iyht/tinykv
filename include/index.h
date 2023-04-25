@@ -1,6 +1,6 @@
 #ifndef HEADER_INDEX
 #define HEADER_INDEX
-#include "data.h"
+#include "../include/log_record.h"
 #include "stdbool.h"
 #include "pthread.h"
 #include "../include/skiplist.h"

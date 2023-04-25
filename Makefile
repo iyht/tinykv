@@ -24,10 +24,15 @@ $(BUILD_DIR)/index_test: $(TEST_DIR)/index_test.c $(BUILD_DIR)/skiplist.o
 $(BUILD_DIR)/fio_test: $(TEST_DIR)/fio_test.c 
 	$(CC) -o $@ $^
 
-all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test $(BUILD_DIR)/fio_test
+# test log_record
+$(BUILD_DIR)/log_record_test: $(TEST_DIR)/log_record_test.c
+	$(CC) -o $@ $^
+
+all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test $(BUILD_DIR)/fio_test $(BUILD_DIR)/log_record_test
 	./$(BUILD_DIR)/skiplist_test
 	./$(BUILD_DIR)/index_test
 	./$(BUILD_DIR)/fio_test
+	./$(BUILD_DIR)/log_record_test
 
 
 
