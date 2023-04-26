@@ -18,6 +18,7 @@
 struct db* db_open(struct option *opt);
 bool put(struct db *self, char *key, char *val);
 char* get(struct db *self, char *key);
+bool db_remove(struct db* self, char *key);
 
 
 #endif

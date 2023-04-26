@@ -1,5 +1,6 @@
 
 #include "../include/kvdb.h"
+#include <pthread.h>
 struct db{
     pthread_mutex_t mutex;
     struct indexer *index;
@@ -209,3 +210,26 @@ char* get(struct db *self, char *key) {
 }
 
 
+bool db_remove(struct db* self, char *key){
+    pthread_mutex_lock(&self->mutex);
+    // check if the key in the index
+    struct log_record_pos* pos = self->index->get(self->index, key);
+    if(pos == NULL) {
+        pthread_mutex_unlock(&self->mutex);
+        return false;
+    }
+
+    // generate log record
+    struct log_record record = {.key = key, 
+                                .val = NULL, 
+                                .type = LOG_RECORD_DELETED,
+                                .key_size = strlen(key),
+                                .val_size = 0};
+
+    // append to the active data file
+    struct log_record_pos* new_pos = append_log_record(self, &record);
+
+    // remove the log position from index
+    pthread_mutex_unlock(&self->mutex);
+    return self->index->del(self->index, key);
+}

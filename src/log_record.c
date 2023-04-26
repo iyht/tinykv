@@ -10,7 +10,7 @@ int64_t get_size(struct log_record* self){
 }
 
 void encode_log_record(struct log_record *record, char **buf, int64_t *size){
-    if(!record || record->key_size == 0 || record->val_size == 0){
+    if(!record || record->key_size == 0){
         printf("encode log record failed\n");
     }
     *size = get_size(record);
