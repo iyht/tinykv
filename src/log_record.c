@@ -32,7 +32,7 @@ void encode_log_record(struct log_record *record, char **buf, int64_t *size){
     strncpy((*buf) + HEADER_SIZE, record->key, record->key_size);
     strncpy((*buf) + HEADER_SIZE + record->key_size, record->val, record->val_size);
     strncpy((*buf) + HEADER_SIZE + record->key_size + record->val_size, record->timestamp, TIMESTAMP_LEN);
-    printf("encode_log_record %s\n", record->timestamp);
+    // printf("encode_log_record %s\n", record->timestamp);
     // printf("total size: %ld, headesize: %ld\n", *size, HEADER_SIZE);
 }
 
