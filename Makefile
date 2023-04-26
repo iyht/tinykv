@@ -25,6 +25,9 @@ $(BUILD_DIR)/index.o: $(SRC_DIR)/index.c
 $(BUILD_DIR)/data_file.o: $(SRC_DIR)/data_file.c
 	$(CC) -c -o $@ $<
 
+$(BUILD_DIR)/kvdb.o: $(SRC_DIR)/kvdb.c
+	$(CC) -c -o $@ $<
+
 # test for skiplist
 $(BUILD_DIR)/skiplist_test: $(TEST_DIR)/skiplist_test.c $(BUILD_DIR)/skiplist.o
 	$(CC) $(FLAG) -o $@ $^
@@ -42,11 +45,16 @@ $(BUILD_DIR)/fio_test: $(TEST_DIR)/fio_test.c $(BUILD_DIR)/fio.o
 $(BUILD_DIR)/log_record_test: $(TEST_DIR)/log_record_test.c $(BUILD_DIR)/log_record.o $(BUILD_DIR)/fio.o $(BUILD_DIR)/data_file.o
 	$(CC) -o $@ $^
 
-all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test $(BUILD_DIR)/fio_test $(BUILD_DIR)/log_record_test
+# test kvdb
+$(BUILD_DIR)/kvdb_test: $(TEST_DIR)/kvdb_test.c $(BUILD_DIR)/log_record.o $(BUILD_DIR)/skiplist.o $(BUILD_DIR)/fio.o $(BUILD_DIR)/index.o $(BUILD_DIR)/data_file.o $(BUILD_DIR)/kvdb.o
+	$(CC) $(FLAG) -o $@ $^
+
+all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test $(BUILD_DIR)/fio_test $(BUILD_DIR)/log_record_test $(BUILD_DIR)/kvdb_test
 	./$(BUILD_DIR)/skiplist_test
 	./$(BUILD_DIR)/index_test
 	./$(BUILD_DIR)/fio_test
 	./$(BUILD_DIR)/log_record_test
+	./$(BUILD_DIR)/kvdb_test
 
 
 
