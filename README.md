@@ -1,4 +1,4 @@
-This is a log-structured fast key-value database that has been implemented based on[Bitcask](https://riak.com/assets/bitcask-intro.pdf)
+This is a log-structured fast key-value database that has been implemented based on [Bitcask](https://riak.com/assets/bitcask-intro.pdf)
 
 Disk Design;
 - The disk design uses `write-ahead logging` (WAL) to support fast writes, especially when writing an incoming `stream of random items`.
