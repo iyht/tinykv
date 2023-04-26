@@ -34,8 +34,20 @@ int main(){
     struct db *db = db_open(&opt);
     char *key1 = "abc", *val1 = "123";  
     char *key2 = "def", *val2 = "456";
+    char *get_val = NULL;
 
-    char *get_val = get(db, key1);
+    get_val = get(db, key1);
+    if(get_val != NULL){
+        db_remove(db, key1);
+    }
+
+    get_val = get(db, key2);
+    if(get_val != NULL){
+        db_remove(db, key2);
+    }
+    
+
+    get_val = get(db, key1);
     assert(get_val == NULL);
     
     get_val = get(db, key2);

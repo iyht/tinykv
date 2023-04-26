@@ -6,8 +6,9 @@ SRC_DIR = src
 INC_DIR = include
 TEST_DIR = test
 BUILD_DIR = build
-
+DB_DIR = db
 $(shell mkdir -p $(BUILD_DIR))
+$(shell mkdir -p $(DB_DIR))
 
 $(BUILD_DIR)/log_record.o: $(SRC_DIR)/log_record.c
 	$(CC) -c -o $@ $<
