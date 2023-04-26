@@ -25,6 +25,7 @@ struct db* db_open(struct option *opt) {
     db->old_data_files = NULL;
     db->old_data_files_size = 0;
     db->active_data_file = NULL;
+    pthread_mutex_init(&db->mutex, NULL);
 
     // check the data files directory exists or not
     struct stat st = {0};
