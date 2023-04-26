@@ -15,10 +15,10 @@
 
 
 
-struct db* db_open(struct option *opt);
-bool put(struct db *self, char *key, char *val);
-char* get(struct db *self, char *key);
-bool db_remove(struct db* self, char *key);
+struct engine* engine_open(struct option *opt);
+bool engine_put(struct engine *self, char *key, char *val);
+struct log_record* engine_get(struct engine *self, char *key);
+bool engine_remove(struct engine* self, char *key);
 
 
 #endif

@@ -3,10 +3,12 @@
 const log_record_type LOG_RECORD_NORMAL = 1;
 const log_record_type LOG_RECORD_DELETED = 2;
 const int64_t HEADER_SIZE = 2 * sizeof(int32_t) + sizeof(log_record_type);
+const int64_t TIMESTAMP_LEN = 23;
+
 
 
 int64_t get_size(struct log_record* self){
-    return self->key_size + self->val_size + HEADER_SIZE;
+    return self->key_size + self->val_size + HEADER_SIZE + TIMESTAMP_LEN;
 }
 
 void encode_log_record(struct log_record *record, char **buf, int64_t *size){
@@ -29,6 +31,8 @@ void encode_log_record(struct log_record *record, char **buf, int64_t *size){
     (*buf)[8] = record->type;
     strncpy((*buf) + HEADER_SIZE, record->key, record->key_size);
     strncpy((*buf) + HEADER_SIZE + record->key_size, record->val, record->val_size);
+    strncpy((*buf) + HEADER_SIZE + record->key_size + record->val_size, record->timestamp, TIMESTAMP_LEN);
+    printf("encode_log_record %s\n", record->timestamp);
     // printf("total size: %ld, headesize: %ld\n", *size, HEADER_SIZE);
 }
 

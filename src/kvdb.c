@@ -1,7 +1,7 @@
 
 #include "../include/kvdb.h"
 #include <pthread.h>
-struct db{
+struct engine{
     pthread_mutex_t mutex;
     struct indexer *index;
     struct option *opt;
@@ -10,16 +10,16 @@ struct db{
     int old_data_files_size;
 };
 
-static void load_data_files(struct db *self);
-static void load_index_from_data_files(struct db *self);
+static void load_data_files(struct engine *self);
+static void load_index_from_data_files(struct engine *self);
 
 
 int filter(const struct dirent *entry){
     return strstr(entry->d_name, ".data") != NULL;
 }
 
-struct db* db_open(struct option *opt) {
-    struct db *db = malloc(sizeof(struct db));
+struct engine* engine_open(struct option *opt) {
+    struct engine *db = malloc(sizeof(struct engine));
     db->opt = opt;
     db->index = create_skiplist_indexer();
     db->old_data_files = NULL;
@@ -44,7 +44,7 @@ struct db* db_open(struct option *opt) {
 
 
 
-static void load_data_files(struct db *self) {
+static void load_data_files(struct engine *self) {
 
     // load all data files under self->opt->dir_path
     // sort the loaded data files by its filename from small to large
@@ -72,8 +72,8 @@ static void load_data_files(struct db *self) {
 }
 
 
-static void load_index_from_data_files(struct db *self){
-    printf("load_index_from_data_files called\n");
+static void load_index_from_data_files(struct engine *self){
+//    printf("load_index_from_data_files called\n");
     for(int i = 0; i < self->old_data_files_size + 1; i++){
         struct data_file *df;
         if(i == self->old_data_files_size){
@@ -106,14 +106,14 @@ static void load_index_from_data_files(struct db *self){
 
 }
 
-void set_active_data_file(struct db *self){
+void set_active_data_file(struct engine *self){
     int file_id = 0; 
     if(self->active_data_file) file_id = self->active_data_file->file_id + 1;
     self->active_data_file = open_data_file(self->opt->dir_path, 0);
     return;
 }
 
-struct log_record_pos* append_log_record(struct db *self, struct log_record *record) {
+struct log_record_pos* append_log_record(struct engine *self, struct log_record *record) {
     if(!record) return NULL;
     char *buf;
     int64_t buf_size;
@@ -145,7 +145,7 @@ struct log_record_pos* append_log_record(struct db *self, struct log_record *rec
     return pos;
 }
 
-bool put(struct db *self, char *key, char *val) {
+bool engine_put(struct engine *self, char *key, char *val) {
     pthread_mutex_lock(&self->mutex);
     if(self == NULL || key == NULL || val == NULL) {
         pthread_mutex_unlock(&self->mutex);
@@ -153,12 +153,19 @@ bool put(struct db *self, char *key, char *val) {
     }
 
     // generate log record
-    struct log_record record = {.key = key, 
+    struct log_record record = {.key = key,
                                 .val = val, 
                                 .type = LOG_RECORD_NORMAL,
                                 .key_size = strlen(key),
-                                .val_size = strlen(val)};
-                            
+                                .val_size = strlen(val),
+                                .total_size = HEADER_SIZE + strlen(key) + strlen(val) + TIMESTAMP_LEN};
+
+    record.timestamp = malloc(TIMESTAMP_LEN + 1);
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    strftime(record.timestamp, 24, "%Y-%m-%d %H:%M:%S.000", tm);
+//    printf("engine_put: key=%s, val=%s, timestamp=$s\n", record.key, record.val, record.timestamp);
+
     // append to the active data file
     struct log_record_pos* pos = append_log_record(self, &record);
 
@@ -168,7 +175,7 @@ bool put(struct db *self, char *key, char *val) {
     return true;
 }
 
-char* get(struct db *self, char *key) {
+struct log_record* engine_get(struct engine *self, char *key) {
     pthread_mutex_lock(&self->mutex);
     if(self == NULL || key == NULL) {
         pthread_mutex_unlock(&self->mutex);
@@ -196,14 +203,8 @@ char* get(struct db *self, char *key) {
     // according to the log record position, read the log record from disk
     struct log_record* record = read_log_record(df, pos->offset);
     if (record && record->type == LOG_RECORD_NORMAL) {
-
-        char *val = malloc(record->val_size + 1);
-        memcpy(val, record->val, record->val_size);
-        val[record->val_size] = '\0';
-        free(record);
-        printf("get %s\n", val);
         pthread_mutex_unlock(&self->mutex);
-        return val;
+        return record;
     }
 
     pthread_mutex_unlock(&self->mutex);
@@ -211,7 +212,7 @@ char* get(struct db *self, char *key) {
 }
 
 
-bool db_remove(struct db* self, char *key){
+bool engine_remove(struct engine* self, char *key){
     pthread_mutex_lock(&self->mutex);
     // check if the key in the index
     struct log_record_pos* pos = self->index->get(self->index, key);
@@ -225,7 +226,13 @@ bool db_remove(struct db* self, char *key){
                                 .val = NULL, 
                                 .type = LOG_RECORD_DELETED,
                                 .key_size = strlen(key),
-                                .val_size = 0};
+                                .val_size = 0,
+                                .total_size = HEADER_SIZE + strlen(key) + TIMESTAMP_LEN};
+
+    record.timestamp = malloc(TIMESTAMP_LEN + 1);
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    strftime(record.timestamp, 24, "%Y-%m-%d %H:%M:%S.000", tm);
 
     // append to the active data file
     struct log_record_pos* new_pos = append_log_record(self, &record);
@@ -233,4 +240,19 @@ bool db_remove(struct db* self, char *key){
     // remove the log position from index
     pthread_mutex_unlock(&self->mutex);
     return self->index->del(self->index, key);
+}
+
+char *engine_timestamp(struct engine* self, char *key){
+    pthread_mutex_lock(&self->mutex);
+    if(self == NULL || key == NULL) {
+        pthread_mutex_unlock(&self->mutex);
+        return NULL;
+    }
+
+    // fetch the log record position from index
+    struct log_record_pos* pos = self->index->get(self->index, key);
+    if(pos == NULL) {
+        pthread_mutex_unlock(&self->mutex);
+        return NULL;
+    }
 }

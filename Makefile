@@ -10,23 +10,25 @@ DB_DIR = db
 $(shell mkdir -p $(BUILD_DIR))
 $(shell mkdir -p $(DB_DIR))
 
+all: kvdb
+
 $(BUILD_DIR)/log_record.o: $(SRC_DIR)/log_record.c
-	$(CC) -c -o $@ $<
+	$(CC) $(FLAG) -c -o $@ $<
 
 $(BUILD_DIR)/skiplist.o: $(SRC_DIR)/skiplist.c
 	$(CC) $(FLAG) -c -o $@ $<
 
 $(BUILD_DIR)/fio.o: $(SRC_DIR)/fio.c
-	$(CC) -c -o $@ $<
+	$(CC) $(FLAG) -c -o $@ $<
 
 $(BUILD_DIR)/index.o: $(SRC_DIR)/index.c
-	$(CC) -c -o $@ $<
+	$(CC) $(FLAG) -c -o $@ $<
 
 $(BUILD_DIR)/data_file.o: $(SRC_DIR)/data_file.c
-	$(CC) -c -o $@ $<
+	$(CC) $(FLAG) -c -o $@ $<
 
 $(BUILD_DIR)/kvdb.o: $(SRC_DIR)/kvdb.c
-	$(CC) -c -o $@ $<
+	$(CC) $(FLAG) -c -o $@ $<
 
 # test for skiplist
 $(BUILD_DIR)/skiplist_test: $(TEST_DIR)/skiplist_test.c $(BUILD_DIR)/skiplist.o
@@ -57,9 +59,14 @@ all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test $(BUILD_DIR)/fio_te
 	./$(BUILD_DIR)/kvdb_test
 
 
+kvdb: $(SRC_DIR)/client.c $(BUILD_DIR)/log_record.o $(BUILD_DIR)/skiplist.o $(BUILD_DIR)/fio.o $(BUILD_DIR)/index.o $(BUILD_DIR)/data_file.o $(BUILD_DIR)/kvdb.o
+	$(CC) $(FLAG) -o $@ $^
+
 
 
 clean:
 	rm -rf $(BUILD_DIR)/*
+	rm kvdb
+	rm a.out
 
-.PHONY: clean all_test
+.PHONY: clean all_test kvdb all

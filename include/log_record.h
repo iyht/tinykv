@@ -9,6 +9,7 @@ typedef char log_record_type;
 extern const log_record_type LOG_RECORD_NORMAL;
 extern const log_record_type LOG_RECORD_DELETED;
 extern const int64_t HEADER_SIZE;
+extern const int64_t TIMESTAMP_LEN;
 
 struct log_record_header{
     int32_t key_size;
@@ -20,9 +21,10 @@ struct log_record{
     int32_t key_size;
     int32_t val_size;
     log_record_type type;
+    int64_t total_size;
+    char *timestamp; // "YYYY-MM-DD HH:MM:SS.SSS"
     char *key;
     char *val;
-    int64_t total_size;
 };
 
 // log_record_pos descript the position of a data in the disk

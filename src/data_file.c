@@ -5,7 +5,7 @@
 struct data_file* open_data_file(char *dir_path, int file_id){
     char *file_path = (char*)malloc(256);
     sprintf(file_path, "%s/%d.data", dir_path, file_id);
-    printf("data_file: %s\n", file_path);
+//    printf("data_file: %s\n", file_path);
 
     struct data_file *df = (struct data_file*)malloc(sizeof(struct data_file));
     df->file_id = file_id;
@@ -20,7 +20,7 @@ static char *read_n_bytes(struct data_file* self, int64_t offset, int64_t n){
     char *buf = (char*)malloc(n);
     int err = self->io->read(self->io, buf, offset, n);
     if(err <= 0) {
-        printf("error or EOF\n");
+//        printf("error or EOF\n");
         return NULL;
     }
     return buf;
@@ -31,14 +31,14 @@ struct log_record* read_log_record(struct data_file* self, int64_t offset){
     // read header 
     char *header_buf = read_n_bytes(self, offset, HEADER_SIZE);
     if(!header_buf){
-        printf("cannot load header\n");
+//        printf("cannot load header\n");
         return NULL;
     }
     struct log_record_header header = decode_log_record_header(header_buf);
 
     // read key and value
-    int64_t kv_size = header.key_size + header.val_size;
-    char *kv_buf = read_n_bytes(self, offset + HEADER_SIZE, kv_size);
+    int64_t data_size = header.key_size + header.val_size + TIMESTAMP_LEN;
+    char *data = read_n_bytes(self, offset + HEADER_SIZE, data_size);
     if(!header_buf) {
         printf("cannot load kv\n");
         return NULL;
@@ -51,13 +51,23 @@ struct log_record* read_log_record(struct data_file* self, int64_t offset){
     record->type = header.type;
     record->key = malloc(header.key_size + 1);
     record->val = malloc(header.val_size + 1);
-    memcpy(record->key, kv_buf, header.key_size);
-    memcpy(record->val, kv_buf + header.key_size, header.val_size);
+    record->timestamp = malloc(TIMESTAMP_LEN + 1);
+    memcpy(record->key, data, header.key_size);
+    memcpy(record->val, data + header.key_size, header.val_size);
+    memcpy(record->timestamp, data + header.key_size + header.val_size, TIMESTAMP_LEN);
     record->key[header.key_size] = '\0';
     record->val[header.val_size] = '\0';
-    record->total_size = kv_size + HEADER_SIZE;
+    record->timestamp[TIMESTAMP_LEN] = '\0';
+    record->total_size = data_size + HEADER_SIZE;
+//    printf("read_log_record: key=%s, val=%s, total_size=%d, timestamp=%s, key_size=%d, val_size=%d, data_size=%d\n",
+//           record->key,
+//           record->val,
+//           record->total_size,
+//           record->timestamp,
+//           record->key_size,
+//           record->val_size,
+//           data_size);
     free(header_buf);
-    printf("read_log_record: key=%s, val=%s, total_size=%ld \n", record->key, record->val, record->total_size);
     return record;
 }
 

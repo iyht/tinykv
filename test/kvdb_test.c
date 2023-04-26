@@ -12,45 +12,38 @@ int main(){
 
     char dir_path[] = "./db";
     struct option opt = {.dir_path = dir_path, .data_file_size = 1024 * 1024 * 1024};
-    struct db *db = db_open(&opt);
+    struct engine *db = engine_open(&opt);
     char *key1 = "abc", *val1 = "123";  
     char *key2 = "def", *val2 = "456";
     char *get_val = NULL;
 
-    get_val = get(db, key1);
-    if(get_val != NULL){
-        db_remove(db, key1);
+    if(engine_get(db, key1) != NULL){
+        engine_remove(db, key1);
     }
 
-    get_val = get(db, key2);
-    if(get_val != NULL){
-        db_remove(db, key2);
+    if(engine_get(db, key2) != NULL){
+        engine_remove(db, key2);
     }
     
 
-    get_val = get(db, key1);
-    assert(get_val == NULL);
-    
-    get_val = get(db, key2);
-    assert(get_val == NULL);
+    assert(engine_get(db, key1) == NULL);
+    assert(engine_get(db, key2) == NULL);
 
-    put(db, key2, val2);
-    get_val = get(db, key2);
+    engine_put(db, key2, val2);
+    get_val = engine_get(db, key2)->val;
     assert(strcmp(get_val, val2) == 0);
 
-    put(db, key1, val1);
-    get_val = get(db, key1);
+    engine_put(db, key1, val1);
+    get_val = engine_get(db, key1)->val;
     assert(strcmp(get_val, val1) == 0);
 
-    db_remove(db, key1);
-    get_val = get(db, key1);
-    assert(get_val == NULL);
+    engine_remove(db, key1);
+    assert(engine_get(db, key1) == NULL);
     
-    struct db *db2 = db_open(&opt);
-    get_val = get(db2, key1);
-    assert(get_val == NULL);
+    struct engine *db2 = engine_open(&opt);
+    assert(engine_get(db2, key1) == NULL);
 
-    get_val = get(db2, key2);
+    get_val = engine_get(db2, key2)->val;
     assert(strcmp(get_val, val2) == 0);
 
 }
