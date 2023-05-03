@@ -6,7 +6,7 @@
 #include "fio.h"
 #include "log_record.h"
 
-// data file use for kvdb
+// data file used for storing data
 struct data_file{
     char *file_path;
     int file_id;

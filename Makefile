@@ -10,7 +10,7 @@ DB_DIR = db
 $(shell mkdir -p $(BUILD_DIR))
 $(shell mkdir -p $(DB_DIR))
 
-all: kvdb
+all: engine
 
 $(BUILD_DIR)/log_record.o: $(SRC_DIR)/log_record.c
 	$(CC) $(FLAG) -c -o $@ $<
@@ -27,7 +27,7 @@ $(BUILD_DIR)/index.o: $(SRC_DIR)/index.c
 $(BUILD_DIR)/data_file.o: $(SRC_DIR)/data_file.c
 	$(CC) $(FLAG) -c -o $@ $<
 
-$(BUILD_DIR)/kvdb.o: $(SRC_DIR)/kvdb.c
+$(BUILD_DIR)/engine.o: $(SRC_DIR)/engine.c
 	$(CC) $(FLAG) -c -o $@ $<
 
 # test for skiplist
@@ -47,26 +47,26 @@ $(BUILD_DIR)/fio_test: $(TEST_DIR)/fio_test.c $(BUILD_DIR)/fio.o
 $(BUILD_DIR)/log_record_test: $(TEST_DIR)/log_record_test.c $(BUILD_DIR)/log_record.o $(BUILD_DIR)/fio.o $(BUILD_DIR)/data_file.o
 	$(CC) -o $@ $^
 
-# test kvdb
-$(BUILD_DIR)/kvdb_test: $(TEST_DIR)/kvdb_test.c $(BUILD_DIR)/log_record.o $(BUILD_DIR)/skiplist.o $(BUILD_DIR)/fio.o $(BUILD_DIR)/index.o $(BUILD_DIR)/data_file.o $(BUILD_DIR)/kvdb.o
+# test engine
+$(BUILD_DIR)/engine_test: $(TEST_DIR)/engine_test.c $(BUILD_DIR)/log_record.o $(BUILD_DIR)/skiplist.o $(BUILD_DIR)/fio.o $(BUILD_DIR)/index.o $(BUILD_DIR)/data_file.o $(BUILD_DIR)/engine.o
 	$(CC) $(FLAG) -o $@ $^
 
-all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test $(BUILD_DIR)/fio_test $(BUILD_DIR)/log_record_test $(BUILD_DIR)/kvdb_test
+all_test: $(BUILD_DIR)/skiplist_test $(BUILD_DIR)/index_test $(BUILD_DIR)/fio_test $(BUILD_DIR)/log_record_test $(BUILD_DIR)/engine_test
 	./$(BUILD_DIR)/skiplist_test
 	./$(BUILD_DIR)/index_test
 	./$(BUILD_DIR)/fio_test
 	./$(BUILD_DIR)/log_record_test
-	./$(BUILD_DIR)/kvdb_test
+	./$(BUILD_DIR)/engine_test
 
 
-kvdb: $(SRC_DIR)/client.c $(BUILD_DIR)/log_record.o $(BUILD_DIR)/skiplist.o $(BUILD_DIR)/fio.o $(BUILD_DIR)/index.o $(BUILD_DIR)/data_file.o $(BUILD_DIR)/kvdb.o
+engine: $(SRC_DIR)/client.c $(BUILD_DIR)/log_record.o $(BUILD_DIR)/skiplist.o $(BUILD_DIR)/fio.o $(BUILD_DIR)/index.o $(BUILD_DIR)/data_file.o $(BUILD_DIR)/engine.o
 	$(CC) $(FLAG) -o $@ $^
 
 
 
 clean:
 	rm -rf $(BUILD_DIR)/*
-	rm kvdb
+	rm engine
 	rm a.out
 
-.PHONY: clean all_test kvdb all
+.PHONY: clean all_test engine all

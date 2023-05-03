@@ -1,11 +1,37 @@
-This is a log-structured fast key-value database that has been implemented based on [Bitcask](https://riak.com/assets/bitcask-intro.pdf)
+# JisooDB 🌸
+This is a log-structured fast key-value database engine that has been implemented based on [Bitcask](https://riak.com/assets/bitcask-intro.pdf) purely in C without any external library.
 
-Disk Design;
+## Build & Run
+Build:
+```
+make all
+```
+
+Run: `set`, `get`, `del`
+```
+$./engine set 🔑 🌸
+$./engine get 🔑
+🌸
+$./engine set 🔑 🌹
+🌹
+$./engine del 🔑
+$./engine get 🔑
+$
+```
+
+Testing:
+```
+make all_test
+```
+
+## Design
+
+Disk Design:
 - The disk design uses `write-ahead logging` (WAL) to support fast writes, especially when writing an incoming `stream of random items`.
 
 Data Encoding:
 ```
-| key size(4 Bytes) | value size(4 Bytes) | status(1 Bytes) | key | value | timestamp(23 Bytes)|
+| key size(4 Bytes) | value size(4 Bytes) | status(1 Bytes) | key(Variable) | value(Variable) | timestamp(23 Bytes)|
 ```
 
 Index Design: 
@@ -21,7 +47,7 @@ Write Process:
 - Then, the corresponding key's index is updated with an updated file ID and offset. If the key has been deleted, it is removed from the index.
 
 Read Process:
-- The read process involves looking up the index to find the `position` (data file ID and offset of the key). If we cannot find it in the index, then it does not exist in our data store. 
+- The read process involves looking up the index(skip list) to find the `position` (data file ID and offset of the key). If we cannot find it in the index, then it does not exist in our data store. 
 - Otherwise, we retrieve its value from disk according to this `position`.
 
 
@@ -34,3 +60,4 @@ TODO:
 - [ ]: Support Merge operation to merge the data files and cleanup outdated logs
 - [ ]: Add CRC into encoded data to support crash recovery and data consistency
 - [ ]: Support DB iterator
+- [ ]: Task Processing Layer for incoming client request
