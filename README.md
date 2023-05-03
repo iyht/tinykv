@@ -1,5 +1,5 @@
 # JisooDB 🌸
-This is a log-structured fast key-value database engine that has been implemented based on [Bitcask](https://riak.com/assets/bitcask-intro.pdf) purely in C without any external library.
+A key-value store engine optimized for writing stream of random items, using log-structured approach and write-ahead logging.
 
 ## Build & Run
 Build:
