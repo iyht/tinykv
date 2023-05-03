@@ -43,13 +43,16 @@ Limitation:
 
 
 Write Process:
-- During the write process, any update or delete operation creates a log that is appended to the end of the data file. 
+- During the write process, any update(`set/del`) operation creates a log that is appended to the end of the data file. 
 - Then, the corresponding key's index is updated with an updated file ID and offset. If the key has been deleted, it is removed from the index.
 
 Read Process:
-- The read process involves looking up the index(skip list) to find the `position` (data file ID and offset of the key). If we cannot find it in the index, then it does not exist in our data store. 
+- The `get key` involves looking up the index(skip list) to find the `position` (data file ID and offset of the key). If we cannot find it in the index, then it does not exist in our data store. 
 - Otherwise, we retrieve its value from disk according to this `position`.
 
+Delete Process:
+- As mentioned in the write process, the `del key` operation writes a tombstone to the disk without actually removing the log of the `key`. 
+- The data position is then removed from the index. The stale data is cleaned up later during the `merge` process.
 
 Boot Process:
 1. Load all the data file with increasing order of the file id
