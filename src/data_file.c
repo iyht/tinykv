@@ -5,7 +5,6 @@
 struct data_file* open_data_file(char *dir_path, int file_id){
     char *file_path = (char*)malloc(256);
     sprintf(file_path, "%s/%d.data", dir_path, file_id);
-//    printf("data_file: %s\n", file_path);
 
     struct data_file *df = (struct data_file*)malloc(sizeof(struct data_file));
     df->file_id = file_id;
@@ -59,14 +58,6 @@ struct log_record* read_log_record(struct data_file* self, int64_t offset){
     record->val[header.val_size] = '\0';
     record->timestamp[TIMESTAMP_LEN] = '\0';
     record->total_size = data_size + HEADER_SIZE;
-//    printf("read_log_record: key=%s, val=%s, total_size=%d, timestamp=%s, key_size=%d, val_size=%d, data_size=%d\n",
-//           record->key,
-//           record->val,
-//           record->total_size,
-//           record->timestamp,
-//           record->key_size,
-//           record->val_size,
-//           data_size);
     free(header_buf);
     return record;
 }
