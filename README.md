@@ -1,4 +1,6 @@
-# JisooDB 🌸
+# JisooDB 🌸 
+[![codecov](https://codecov.io/github/Haotian-Yang/JisooDB/branch/main/graph/badge.svg?token=HBA2UV1I5C)](https://codecov.io/github/Haotian-Yang/JisooDB)
+
 A key-value store engine optimized for writing stream of random items, using log-structured approach and write-ahead logging.
 
 ## Build & Run
