@@ -25,6 +25,7 @@ $
 Testing:
 ```
 make all_test
+make clean
 ```
 
 ## Design
