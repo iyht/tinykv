@@ -13,3 +13,4 @@ jobs:
         with:
           gcov: true
           gcov_include: src/skiplist.c
+          token: ${{secrets.CODECOV_TOKEN}}
