@@ -15,6 +15,7 @@ $./engine set 🔑 🌸
 $./engine get 🔑
 🌸
 $./engine set 🔑 🌹
+$./engine get 🔑
 🌹
 $./engine del 🔑
 $./engine get 🔑
