@@ -60,8 +60,6 @@ all_test: skiplist_test index_test fio_test log_record_test engine_test
 engine: $(SRC_DIR)/client.c log_record.o skiplist.o fio.o index.o data_file.o engine.o
 	$(CC) $(FLAG) -o $@ $^
 
-
-
 clean:
 	rm -f engine
 	rm -f a.out
