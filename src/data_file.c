@@ -75,6 +75,7 @@ int data_file_write(struct data_file* self, char *buf, int64_t size){
     // append to the end of the data file
     self->io->write(self->io, buf, size);
     self->write_offset += size;
+    return 0;
 }
 
 void data_file_sync(struct data_file* self){
