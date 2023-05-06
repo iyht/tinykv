@@ -3,3 +3,6 @@
 **/*.dSYM
 build/*
 **/*.data
+**/*.gcno
+**/*.gcda
+**/*.gcov
