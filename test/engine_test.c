@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include "../include/engine.h"
+#include "../src/engine.h"
 #include <assert.h>
 
 

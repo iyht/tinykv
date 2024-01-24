@@ -1,4 +1,4 @@
-#include "../include/skiplist.h"
+#include "skiplist.h"
 
 
 void node_free(struct list_node* node);

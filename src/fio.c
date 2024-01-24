@@ -1,4 +1,4 @@
-#include "../include/fio.h"
+#include "fio.h"
 
 int file_io_write(void *self, char *buf, int64_t size){
     struct file_io *fio = (struct file_io *)self;

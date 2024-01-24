@@ -1,4 +1,4 @@
-#include "../include/data_file.h"
+#include "data_file.h"
 #include <stdio.h>
 #include <stdlib.h>
 

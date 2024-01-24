@@ -1,4 +1,4 @@
-#include "../include/index.h"
+#include "index.h"
 
 
 bool skiplist_indexer_put(void *self, char *key, struct log_record_pos *pos) {

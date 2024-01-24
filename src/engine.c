@@ -1,5 +1,5 @@
 
-#include "../include/engine.h"
+#include "engine.h"
 #include <pthread.h>
 struct engine{
     pthread_mutex_t mutex;

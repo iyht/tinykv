@@ -8,10 +8,10 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include "../include/index.h"
-#include "../include/data_file.h"
-#include "../include/log_record.h"
-#include "../include/option.h"
+#include "index.h"
+#include "data_file.h"
+#include "log_record.h"
+#include "option.h"
 
 
 

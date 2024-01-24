@@ -1,9 +1,9 @@
 #ifndef HEADER_INDEX
 #define HEADER_INDEX
-#include "../include/log_record.h"
+#include "log_record.h"
 #include "stdbool.h"
 #include "pthread.h"
-#include "../include/skiplist.h"
+#include "skiplist.h"
 #include <stdlib.h>
 #include <stdio.h>
 

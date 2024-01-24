@@ -1,4 +1,4 @@
-#include "../include/log_record.h"
+#include "log_record.h"
 
 const log_record_type LOG_RECORD_NORMAL = 1;
 const log_record_type LOG_RECORD_DELETED = 2;

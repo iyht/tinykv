@@ -1,73 +1,49 @@
 CC = gcc
-FLAG = -g -fprofile-arcs -ftest-coverage -O0
+CFLAGS = -g -fprofile-arcs -ftest-coverage -O0
+CFLAGS_NO_COV = -g -O0
+LDFLAGS = -lgcov
 
 # Define directories
-SRC_DIR = src
-INC_DIR = include
-TEST_DIR = test
-DB_DIR = db
-$(shell mkdir -p $(DB_DIR))
+S = src
+T = test
+DB = db
+OBJS = $(S)/log_record.o $(S)/skiplist.o $(S)/fio.o $(S)/index.o $(S)/data_file.o $(S)/engine.o
+TESTS = $(patsubst $(T)/%.c,$(T)/%,$(wildcard $(T)/*.c))
 
+# Create database directory
+$(shell mkdir -p $(DB))
+
+# Default target
 all: engine
 
-log_record.o: $(SRC_DIR)/log_record.c
-	$(CC) $(FLAG) -c -o $@ $<
+# Generic rule for object files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-skiplist.o: $(SRC_DIR)/skiplist.c
-	$(CC) $(FLAG) -c -o $@ $<
+# Test targets
+$(T)/skiplist_test: $(T)/skiplist_test.c $(OBJS)
+$(T)/index_test: $(T)/index_test.c $(OBJS)
+$(T)/fio_test: $(T)/fio_test.c $(OBJS)
+$(T)/log_record_test: $(T)/log_record_test.c $(OBJS)
+$(T)/engine_test: $(T)/engine_test.c $(OBJS)
 
-fio.o: $(SRC_DIR)/fio.c
-	$(CC) $(FLAG) -c -o $@ $<
+# Pattern rule for test executables
+$(T)/%:
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-index.o: $(SRC_DIR)/index.c
-	$(CC) $(FLAG) -c -o $@ $<
+# Run all tests
+all_test: $(TESTS)
+	for test in $^; do ./$$test; done
+	gcov -pbr --object-directory $(S) $(S)/*
 
-data_file.o: $(SRC_DIR)/data_file.c
-	$(CC) $(FLAG) -c -o $@ $<
+# Engine target
+engine: $(S)/client.c $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
-engine.o: $(SRC_DIR)/engine.c
-	$(CC) $(FLAG) -c -o $@ $<
-
-# test for skiplist
-skiplist_test: $(TEST_DIR)/skiplist_test.c skiplist.o
-	$(CC) $(FLAG) -o $@ $^
-
-
-# test for index
-index_test: $(TEST_DIR)/index_test.c index.o skiplist.o
-	$(CC) $(FLAG) -o $@ $^
-
-# test fio
-fio_test: $(TEST_DIR)/fio_test.c fio.o
-	$(CC) $(FLAG) -o $@ $^
-
-# test log_record
-log_record_test: $(TEST_DIR)/log_record_test.c log_record.o fio.o data_file.o
-	$(CC) $(FLAG) -o $@ $^
-
-# test engine
-engine_test: $(TEST_DIR)/engine_test.c log_record.o skiplist.o fio.o index.o data_file.o engine.o
-	$(CC) $(FLAG) -o $@ $^
-
-all_test: skiplist_test index_test fio_test log_record_test engine_test
-	./skiplist_test
-	./index_test
-	./fio_test
-	./log_record_test
-	./engine_test
-	gcov -pbr --object-directory ./ ./src/*
-
-
-engine: $(SRC_DIR)/client.c log_record.o skiplist.o fio.o index.o data_file.o engine.o
-	$(CC) $(FLAG) -o $@ $^
-
+# Clean target
 clean:
-	rm -f engine
-	rm -f a.out
-	rm -f *.gcno
-	rm -f *.gcda
-	rm -f *.o
+	rm -f $(S)/*.o $(S)/*.gcno $(S)/*.gcda $(S)/*.gcov
+	rm -f $(T)/*.o $(T)/*.gcno $(T)/*.gcda $(T)/*.gcov $(TESTS)
 	rm -f *.gcov
-	rm -f *_test
 
 .PHONY: clean all_test engine all

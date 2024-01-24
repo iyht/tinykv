@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../include/engine.h"
+#include "engine.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {

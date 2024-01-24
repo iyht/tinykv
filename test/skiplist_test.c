@@ -1,4 +1,4 @@
-#include "../include/skiplist.h"
+#include "../src/skiplist.h"
 #include <assert.h>
 
 
