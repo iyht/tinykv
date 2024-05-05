@@ -1,7 +1,7 @@
-# JisooDB 🌸 
+# tinykv 🌸 
 [![codecov](https://codecov.io/github/Haotian-Yang/JisooDB/branch/main/graph/badge.svg?token=HBA2UV1I5C)](https://codecov.io/github/Haotian-Yang/JisooDB)
 
-A key-value store engine optimized for writing stream of random items, using log-structured approach and write-ahead logging.
+A key-value store engine optimized for writing stream of random items, using log-structured approach and write-ahead logging based on [Bitcask](https://riak.com/assets/bitcask-intro.pdf).
 
 ## Build & Run
 Build:
@@ -47,7 +47,7 @@ Limitation:
 
 
 Write Process:
-- During the write process, any update(`set/del`) operation creates a log that is appended to the end of the data file. 
+- During the writing process, any update(`set/del`) operation creates a log that is appended to the end of the data file. 
 - Then, the corresponding key's index is updated with an updated file ID and offset. If the key has been deleted, it is removed from the index.
 
 Read Process:
